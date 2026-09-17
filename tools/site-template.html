@@ -3,76 +3,259 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>paypreflight - check a payment run before you send it</title>
-<meta name="description" content="Free, offline pre-flight checks for EU payment runs: IBAN checksums, SEPA rules, VAT structure, duplicates and control sums. CSV, JSON and pain.001. Nothing is uploaded - it all runs in your browser.">
+<title>paypreflight — check a payment run before you send it</title>
+<meta name="description" content="Free, offline pre-flight checks for EU payment runs: IBAN checksums, SEPA rules, duplicate references and control sums. CSV, JSON and pain.001. Nothing is uploaded — it all runs in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1320'/%3E%3Cpath d='M7 17.5l5 5L24 10' stroke='%2334d399' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-  :root { --ink:#1c2330; --paper:#fbfbf9; --line:#e3e2dd; --bad:#b3261e; --warn:#8a6d00; --ok:#1a7f4b; --accent:#2557a7; }
-  * { box-sizing: border-box; }
-  body { margin:0; font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color:var(--ink); background:var(--paper); }
-  header { padding: 2.2rem 1rem 1rem; max-width: 60rem; margin: 0 auto; }
-  h1 { font-size: 1.7rem; margin: 0 0 .4rem; }
-  .tag { color:#555; max-width: 46rem; }
-  main { max-width: 60rem; margin: 0 auto; padding: 0 1rem 4rem; }
-  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 1.6rem; text-align:center; background:#fff; }
-  .drop.over { border-color: var(--accent); background:#f2f6fd; }
-  textarea { width:100%; min-height: 12rem; font: 13px/1.4 ui-monospace, Consolas, monospace; border:1px solid var(--line); border-radius:8px; padding:.6rem; }
-  .row { display:flex; gap:.6rem; margin:.7rem 0; flex-wrap: wrap; }
-  button, .file-label { font: inherit; padding:.5rem 1rem; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; }
-  button.primary, .file-label { background:var(--accent); color:#fff; border-color:var(--accent); }
-  button:disabled { opacity:.45; cursor:default; }
-  pre.report { background:#fff; border:1px solid var(--line); border-radius:8px; padding:1rem; overflow-x:auto; white-space:pre-wrap; font: 13px/1.5 ui-monospace, Consolas, monospace; }
-  .verdict { font-weight:600; margin:.4rem 0 .8rem; }
-  .verdict.bad { color: var(--bad); } .verdict.warn { color: var(--warn); } .verdict.ok { color: var(--ok); }
-  .hidden { display:none; }
-  details { margin: .8rem 0; }
-  footer { max-width:60rem; margin:0 auto; padding:1rem; border-top:1px solid var(--line); color:#555; font-size:14px; }
-  a { color: var(--accent); }
-  .privacy { background:#eef7f0; border:1px solid #cfe8d6; border-radius:8px; padding:.7rem .9rem; margin:1rem 0; font-size:14px; }
-  code { background:#f2f1ec; padding:0 .3rem; border-radius:4px; }
+  :root { --bg:#0b0f1a; --bg2:#101728; --card:#141c30; --line:#243049; --ink:#e7ecf5; --muted:#94a3c0;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --accent:#34d399; --accent2:#60a5fa; --radius:14px; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  code { background:#1b2540; padding:.1rem .4rem; border-radius:6px; font-size:.9em; }
+  .wrap { max-width:66rem; margin:0 auto; padding:0 1.2rem; }
+  nav { position:sticky; top:0; z-index:10; background:rgba(11,15,26,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  nav .wrap { display:flex; align-items:center; gap:1.4rem; height:3.6rem; }
+  .logo { display:flex; align-items:center; gap:.55rem; font-weight:700; color:var(--ink); }
+  .logo:hover { text-decoration:none; }
+  .logo svg { display:block; }
+  nav .links { margin-left:auto; display:flex; gap:1.2rem; align-items:center; font-size:.95rem; }
+  nav .links a { color:var(--muted); }
+  nav .links a:hover { color:var(--ink); text-decoration:none; }
+  .btn { display:inline-block; padding:.55rem 1.1rem; border-radius:10px; font-weight:600; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; font-size:.95rem; }
+  .btn:hover { border-color:var(--muted); text-decoration:none; }
+  .btn.primary { background:var(--accent); color:#06281c; border-color:var(--accent); }
+  .btn.primary:hover { filter:brightness(1.08); }
+  @media (max-width:640px){ nav .links a:not(:last-child){display:none;} }
+  .hero { padding:4.5rem 0 3rem; text-align:center; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:-40% -20% auto; height:150%; background:
+    radial-gradient(40rem 22rem at 30% 0%, rgba(52,211,153,.13), transparent 60%),
+    radial-gradient(40rem 22rem at 75% 10%, rgba(96,165,250,.12), transparent 60%);
+    pointer-events:none; }
+  .hero h1 { font-size:clamp(2rem,5vw,3.1rem); line-height:1.15; letter-spacing:-.03em; margin:.4rem 0 .8rem; }
+  .hero h1 em { font-style:normal; color:var(--accent); }
+  .hero .sub { color:var(--muted); max-width:44rem; margin:0 auto 1.8rem; font-size:1.12rem; }
+  .hero .cta { display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap; }
+  .pill { display:inline-block; font-size:.8rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.25); padding:.3rem .8rem; border-radius:999px; }
+  .trust { margin-top:1.6rem; color:var(--muted); font-size:.9rem; }
+  .trust b { color:var(--ink); font-weight:600; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin:2.5rem 0 0; }
+  .stat { background:var(--bg2); padding:1.1rem 1rem; text-align:center; }
+  .stat b { display:block; font-size:1.35rem; letter-spacing:-.02em; }
+  .stat span { color:var(--muted); font-size:.83rem; }
+  @media (max-width:640px){ .stats { grid-template-columns:repeat(2,1fr); } }
+  section { padding:3.4rem 0; }
+  h2 { font-size:clamp(1.4rem,3vw,1.9rem); letter-spacing:-.02em; margin:0 0 .5rem; text-align:center; }
+  .lead { color:var(--muted); text-align:center; max-width:40rem; margin:0 auto 2.2rem; }
+  .alt { background:var(--bg2); border-block:1px solid var(--line); }
 </style>
 </head>
 <body>
-<header>
-  <h1>paypreflight</h1>
-  <p class="tag">Pre-flight checks for an EU payment run: IBAN checksums, SEPA character set and amounts,
-  duplicate end-to-end references, declared totals. CSV, JSON and pain.001. Checks a creditor list
-  <strong>before</strong> it is uploaded to the bank, while it is still a spreadsheet problem and not a recall.</p>
-</header>
-<main>
-  <div class="privacy">This page runs entirely in your browser. Your file is not uploaded anywhere - the page has no
-  network code at all, and you can watch it work with the network tab open.</div>
 
-  <div class="drop" id="drop">
-    <p>Drop a payment file here, or</p>
-    <label class="file-label">choose a file<input type="file" id="file" accept=".csv,.txt,.json,.xml" class="hidden"></label>
-    <p style="color:#666;font-size:14px">CSV (comma or semicolon), JSON array of records, or ISO 20022 pain.001 XML. Max 5,000 rows.</p>
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#top">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#141c30" stroke="#243049"/><path d="M7 17.5l5 5L24 10" stroke="#34d399" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      paypreflight
+    </a>
+    <div class="links">
+      <a href="#features">What it checks</a>
+      <a href="#pricing">Pricing</a>
+      <a class="btn primary" href="#tool">Try it free</a>
+    </div>
   </div>
+</nav>
 
-  <details>
-    <summary>…or paste rows</summary>
-    <textarea id="paste" placeholder="Iban;Naam;Bedrag;Valuta&#10;GB55WEST12345698765433;Handel Zonen BV;1250.00;EUR&#10;NL91ABNA0417164300;Klanten B.V.;99.95;EUR"></textarea>
-    <div class="row"><button class="primary" id="go">Check the pasted rows</button></div>
-  </details>
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="pill">Free · runs in your browser · nothing uploaded</span>
+    <h1>Send your payment run<br><em>right the first time.</em></h1>
+    <p class="sub">paypreflight checks a batch of payments <b>before</b> it reaches the bank —
+    every IBAN checksum, every SEPA rule, every duplicate reference — while a mistake
+    is still a spreadsheet problem and not a payment recall.</p>
+    <div class="cta">
+      <a class="btn primary" href="#tool">Check a file now</a>
+      <a class="btn" href="#pricing">See Pro</a>
+    </div>
+    <p class="trust"><b>No account.</b> No upload, no telemetry — the page has no network code at all.</p>
+    <div class="stats">
+      <div class="stat"><b>116</b><span>IBAN countries</span></div>
+      <div class="stat"><b>28</b><span>VAT formats</span></div>
+      <div class="stat"><b>3</b><span>input formats · CSV, JSON, pain.001</span></div>
+      <div class="stat"><b>0</b><span>bytes uploaded</span></div>
+    </div>
+  </div>
+</header>
 
-  <section id="result" class="hidden">
-    <div class="verdict" id="verdict"></div>
-    <pre class="report" id="report"></pre>
+<main>
 
-    <details id="fixDetails" class="hidden">
-      <summary>Show what an automatic fix would change</summary>
-      <pre class="report" id="fixreport"></pre>
-      <div class="row"><button id="download">Download the corrected CSV</button></div>
-      <p style="color:#666;font-size:14px">Every change is re-verified against the checksum before it is written; defects that
-      need a human decision are left alone and listed. The CLI does the same over a whole directory of runs, with exit
-      codes for CI and a licence that unlocks larger files.</p>
+<section id="tool">
+  <div class="wrap">
+    <h2>Check a file now</h2>
+    <p class="lead">Drop in a payment file — it never leaves your computer. You can watch it work with the network tab open.</p>
+
+    <div class="drop" id="drop">
+      <p>Drop a payment file here, or</p>
+      <label class="file-label">choose a file<input type="file" id="file" accept=".csv,.txt,.json,.xml" class="hidden"></label>
+      <p class="hint">CSV (comma or semicolon), JSON array of records, or ISO 20022 pain.001 XML. Up to 5,000 rows.</p>
+    </div>
+
+    <details>
+      <summary>…or paste rows</summary>
+      <textarea id="paste" placeholder="Iban;Naam;Bedrag;Valuta&#10;GB55WEST12345698765433;Handel Zonen BV;1250.00;EUR&#10;NL91ABNA0417164300;Klanten B.V.;99.95;EUR"></textarea>
+      <div class="row"><button class="btn primary" id="go">Check the pasted rows</button></div>
     </details>
-  </section>
+
+    <section id="result" class="hidden">
+      <div class="verdict" id="verdict"></div>
+      <pre class="report" id="report"></pre>
+
+      <details id="fixDetails" class="hidden">
+        <summary>Show what an automatic fix would change</summary>
+        <pre class="report" id="fixreport"></pre>
+        <div class="row"><button class="btn primary" id="download">Download the corrected CSV</button></div>
+        <p class="hint">Every change is re-verified against the checksum before it is written; defects that need a human
+        decision are left alone and listed. The CLI does the same over a whole directory of runs, with exit codes for CI.</p>
+      </details>
+    </section>
+  </div>
+</section>
+
+<section id="features" class="alt">
+  <div class="wrap">
+    <h2>What it catches, before your bank does</h2>
+    <p class="lead">One engine, the same checks in your browser, the CLI and the MCP server.</p>
+    <div class="grid">
+      <div class="card"><span class="ico">🔢</span><h3>IBAN checksums</h3><p>ISO 7064 MOD 97-10 validation across <b>116 countries</b>, with the corrected check digits suggested — not just "invalid".</p></div>
+      <div class="card"><span class="ico">🔤</span><h3>SEPA character set</h3><p>Names containing characters the EPC scheme cannot carry get flagged and cleaned.</p></div>
+      <div class="card"><span class="ico">💶</span><h3>Amount &amp; currency rules</h3><p>European and English notation (<code>1250,00</code> vs <code>1,250.00</code>), zero and negative amounts, the SEPA ceiling.</p></div>
+      <div class="card"><span class="ico">👯</span><h3>Duplicate references</h3><p>The same end-to-end reference twice is a rejection waiting to happen. Found across the whole run, not per row.</p></div>
+      <div class="card"><span class="ico">Σ</span><h3>Control sums</h3><p>The total and transaction count declared in a pain.001 header are recomputed and compared — mismatches surface instantly.</p></div>
+      <div class="card"><span class="ico">🧾</span><h3>VAT structure</h3><p>Format checks for 28 VAT areas, fully offline. Live registration is VIES's job, and the report says so honestly.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="cli">
+  <div class="wrap">
+    <h2>Same engine, in your pipeline</h2>
+    <p class="lead">The CLI is the identical audit engine, offline on your machine or CI runner. One command gates a payment run:</p>
+    <pre class="term">paypreflight check suppliers.csv
+
+paypreflight - suppliers.csv - 10 instruction(s) - 9,680.30 EUR
+<span class="bad">FAIL</span>  5 error(s), 3 warning(s)
+
+<span class="bad">ERROR</span>  2x iban_invalid on line(s) 2, 7
+       Creditor IBAN failed ISO 13616 validation …
+       <span class="ok">fix: GB55WEST12345698765433</span>
+
+<span class="warn">WARN</span>   2x duplicate_reference on line(s) 5, 10
+       Remittance reference "INV-2026-0003" was already used on line 4.
+
+Exit code 1 → the pipeline stops the bad run <b>before</b> the bank does.</pre>
+    <div class="cta-center"><a class="btn primary" href="https://github.com/AutonomosMakerAstraHermes/paypreflight">Read the docs on GitHub</a></div>
+  </div>
+</section>
+
+<section id="pricing" class="alt">
+  <div class="wrap">
+    <h2>Pricing</h2>
+    <p class="lead">Diagnosis is free and stays free. The part that saves the hours is what a business pays for.</p>
+    <div class="grid two">
+      <div class="card price">
+        <h3>Free</h3><div class="amount">€0</div>
+        <ul>
+          <li>Full audit report — every check</li>
+          <li>Fix diff preview, in browser and CLI</li>
+          <li>Up to 5,000 rows per file</li>
+          <li>Browser tool, CLI, MCP server</li>
+          <li>MIT-licensed engine</li>
+        </ul>
+        <a class="btn" href="#tool">Start checking</a>
+      </div>
+      <div class="card price featured">
+        <span class="pill">Pro</span>
+        <h3>Pro licence</h3><div class="amount">€49<span> / year / seat</span></div>
+        <ul>
+          <li>Unlimited rows</li>
+          <li><b>Corrected file output</b> — written and change-logged</li>
+          <li>Offline licence: no account, no phone-home</li>
+          <li>CI exit codes for pre-payment gates</li>
+          <li>Priority fixes for 12 months</li>
+        </ul>
+        <a class="btn primary" href="https://github.com/AutonomosMakerAstraHermes/paypreflight#readme">Get a licence</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>Questions</h2>
+    <div class="faq">
+      <details><summary>Is my payment file uploaded anywhere?</summary><p>No. This page and the CLI have no network code at all — the audit runs in your browser or on your machine. A creditor list is exactly the kind of file that must not be emailed to strangers.</p></details>
+      <details><summary>Can it fix the file for me?</summary><p>Yes, with a Pro licence: repaired check digits (re-verified before writing), canonical amounts, cleaned names — each with a change log. Anything needing a human judgement is left alone and listed.</p></details>
+      <details><summary>Which file formats?</summary><p>Bank and ERP exports in CSV (comma or semicolon), JSON arrays of records, and ISO 20022 pain.001 XML. The format is detected from the content, not the filename.</p></details>
+      <details><summary>Does the licence need an account?</summary><p>No. A licence is a signed key verified offline with an HMAC — no phone-home, no login, works in air-gapped finance environments.</p></details>
+      <details><summary>Can AI agents use it?</summary><p>Yes — the same engine speaks MCP over stdio, so Claude Desktop, Cursor, Cline and other MCP clients can run the checks locally.</p></details>
+    </div>
+  </div>
+</section>
+
 </main>
+
 <footer>
-  Free tier: 5,000 rows per file, everything above. The <a href="https://github.com/AutonomosMakerAstraHermes/paypreflight">CLI</a>
-  is the same engine offline: <code>npm i -g paypreflight</code>, <code>paypreflight check suppliers.csv</code> in a
-  pre-payment CI step, Pro licences for unlimited rows and corrected-file output. MIT-licensed engine.
+  <div class="wrap foot">
+    <div>© 2026 paypreflight · <a href="https://github.com/AutonomosMakerAstraHermes/paypreflight">GitHub</a> · MIT-licensed engine</div>
+    <div>Nothing you put on this page leaves your machine.</div>
+  </div>
 </footer>
+
+<style>
+  #tool .wrap { max-width:56rem; }
+  .drop { border:2px dashed var(--line); border-radius:var(--radius); padding:2.2rem 1.6rem; text-align:center; background:var(--card); }
+  .drop.over { border-color:var(--accent); background:#12241f; }
+  .file-label { font:inherit; padding:.55rem 1.1rem; border-radius:10px; border:1px solid var(--accent); background:var(--accent); color:#06281c; font-weight:600; cursor:pointer; }
+  .hint { color:var(--muted); font-size:.85rem; }
+  textarea { width:100%; min-height:11rem; font:13px/1.5 ui-monospace,Consolas,monospace; border:1px solid var(--line); border-radius:10px; padding:.7rem; background:var(--card); color:var(--ink); }
+  textarea:focus { outline:1px solid var(--accent); }
+  .row { display:flex; gap:.6rem; margin:.8rem 0; flex-wrap:wrap; }
+  .verdict { font-weight:700; font-size:1.05rem; margin:.2rem 0 .8rem; }
+  .verdict.bad { color:var(--bad); } .verdict.warn { color:var(--warn); } .verdict.ok { color:var(--ok); }
+  pre.report { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem; overflow-x:auto; white-space:pre-wrap; font:13px/1.55 ui-monospace,Consolas,monospace; }
+  #result details { margin-top:1rem; }
+  summary { cursor:pointer; color:var(--muted); }
+  summary:hover { color:var(--ink); }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+  .grid.two { grid-template-columns:repeat(2,1fr); max-width:52rem; margin:0 auto; }
+  @media (max-width:860px){ .grid, .grid.two { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .grid, .grid.two { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:1.4rem 1.3rem; }
+  .card h3 { margin:.6rem 0 .4rem; font-size:1.02rem; }
+  .card p { margin:0; color:var(--muted); font-size:.93rem; }
+  .ico { font-size:1.4rem; }
+  pre.term { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:1.3rem 1.4rem; font:13px/1.6 ui-monospace,Consolas,monospace; white-space:pre-wrap; max-width:52rem; margin:0 auto; }
+  pre.term .bad { color:var(--bad); font-weight:700; }
+  pre.term .warn { color:var(--warn); font-weight:700; }
+  pre.term .ok { color:var(--ok); font-weight:700; }
+  .cta-center { text-align:center; margin-top:1.6rem; }
+  .price { display:flex; flex-direction:column; }
+  .price .amount { font-size:2rem; font-weight:800; letter-spacing:-.03em; margin:.2rem 0 .8rem; }
+  .price .amount span { font-size:.9rem; font-weight:500; color:var(--muted); letter-spacing:0; }
+  .price ul { list-style:none; padding:0; margin:0 0 1.3rem; flex:1; }
+  .price li { padding:.32rem 0 .32rem 1.4rem; position:relative; color:var(--muted); font-size:.94rem; }
+  .price li::before { content:'✓'; position:absolute; left:0; color:var(--ok); font-weight:700; }
+  .price.featured { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 12px 40px rgba(52,211,153,.08); }
+  .faq { max-width:52rem; margin:0 auto; }
+  .faq details { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:1rem 1.2rem; margin-bottom:.7rem; }
+  .faq summary { color:var(--ink); font-weight:600; }
+  .faq p { color:var(--muted); margin:.7rem 0 0; }
+  footer { border-top:1px solid var(--line); background:var(--bg2); padding:1.6rem 0; color:var(--muted); font-size:.9rem; }
+  .foot { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+  .hidden { display:none; }
+</style>
 
 <script type="module">
 import { auditFile } from './lib/index.js';
@@ -86,9 +269,9 @@ let lastFix = null;
 function setVerdict(summary) {
   const v = $('verdict');
   v.classList.remove('bad', 'warn', 'ok');
-  if (summary.blocking) { v.classList.add('bad'); v.textContent = `NOT CLEAR FOR PAYMENT - ${summary.errors} error(s), ${summary.warnings} warning(s), ${summary.rows} row(s)`; }
-  else if (summary.warnings > 0) { v.classList.add('warn'); v.textContent = `PASSES WITH WARNINGS - ${summary.warnings} warning(s), ${summary.rows} row(s)`; }
-  else { v.classList.add('ok'); v.textContent = `CLEAR - ${summary.rows} row(s), no findings`; }
+  if (summary.blocking) { v.classList.add('bad'); v.textContent = `NOT CLEAR FOR PAYMENT — ${summary.errors} error(s), ${summary.warnings} warning(s), ${summary.rows} row(s)`; }
+  else if (summary.warnings > 0) { v.classList.add('warn'); v.textContent = `PASSES WITH WARNINGS — ${summary.warnings} warning(s), ${summary.rows} row(s)`; }
+  else { v.classList.add('ok'); v.textContent = `CLEAR — ${summary.rows} row(s), no findings`; }
 }
 
 async function audit(text) {
@@ -106,7 +289,6 @@ async function audit(text) {
     setVerdict(report.summary);
     $('report').textContent = formatReport(report);
 
-    // The fix preview only makes sense for tabular input.
     if (!text.trimStart().startsWith('<')) {
       const { records, keys, headers, delimiter } = parseCsvToRecords(text);
       if (records.length > 0) {
@@ -131,25 +313,22 @@ function readFile(file) {
   reader.readAsText(file);
 }
 
-$('file').addEventListener('change', (event) => {
-  if (event.target.files[0]) readFile(event.target.files[0]);
-});
+$('file').addEventListener('change', (e) => { if (e.target.files[0]) readFile(e.target.files[0]); });
 const drop = $('drop');
-['dragenter', 'dragover'].forEach((name) => drop.addEventListener(name, (e) => { e.preventDefault(); drop.classList.add('over'); }));
-['dragleave', 'drop'].forEach((name) => drop.addEventListener(name, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
-drop.addEventListener('drop', (e) => { const file = e.dataTransfer.files[0]; if (file) readFile(file); });
-$('go').addEventListener('click', () => { const text = $('paste').value.trim(); if (text) audit(text); });
+['dragenter', 'dragover'].forEach((n) => drop.addEventListener(n, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach((n) => drop.addEventListener(n, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', (e) => { const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+$('go').addEventListener('click', () => { const t = $('paste').value.trim(); if (t) audit(t); });
 
 $('download').addEventListener('click', () => {
   if (!lastFix) return;
   const { result, headers, keys, delimiter } = lastFix;
   const headerLine = headers.length > 0 ? headers : keys;
-  const rows = result.records.map((record) =>
-    Object.fromEntries(headerLine.map((header, index) => [header, record[keys[index]] ?? record[header] ?? ''])));
+  const rows = result.records.map((r) =>
+    Object.fromEntries(headerLine.map((h, i) => [h, r[keys[i]] ?? r[h] ?? ''])));
   const blob = new Blob([toCsv(rows, headerLine, delimiter)], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), { href: url, download: 'paypreflight-fixed.csv' });
-  a.click();
+  Object.assign(document.createElement('a'), { href: url, download: 'paypreflight-fixed.csv' }).click();
   URL.revokeObjectURL(url);
 });
 </script>
