@@ -1,0 +1,7 @@
+# Previously paid creditor accounts, one IBAN per line.
+# Used with --known to flag first-time payees in a payment run, which is the
+# cheapest control available: paying a new account is where both typos and
+# invoice fraud land. Lines starting with # are ignored.
+GB82WEST12345698765432
+DE89370400440532013000
+FR1420041010050500013M02606

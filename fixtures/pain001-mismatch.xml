@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
+  <CstmrCdtTrfInitn>
+    <GrpHdr>
+      <MsgId>PAYPREFLIGHT-DEMO-0001</MsgId>
+      <CreDtTm>2026-09-17T08:00:00</CreDtTm>
+      <NbOfTxs>3</NbOfTxs>
+      <CtrlSum>500.00</CtrlSum>
+      <InitgPty><Nm>Acme BV</Nm></InitgPty>
+    </GrpHdr>
+    <PmtInf>
+      <PmtInfId>PMT-2026-09-18-001</PmtInfId>
+      <PmtMtd>TRF</PmtMtd>
+      <NbOfTxs>3</NbOfTxs>
+      <CtrlSum>500.00</CtrlSum>
+      <ReqdExctnDt>2026-09-18</ReqdExctnDt>
+      <Dbtr><Nm>Acme BV</Nm></Dbtr>
+      <DbtrAcct><Id><IBAN>NL91ABNA0417164300</IBAN></Id></DbtrAcct>
+      <CdtTrfTxInf>
+        <PmtId>
+          <EndToEndId>E2E-0001</EndToEndId>
+        </PmtId>
+        <Amt><InstdAmt Ccy="EUR">1250.00</InstdAmt></Amt>
+        <Cdtr><Nm>Ada Lovelace Ltd</Nm></Cdtr>
+        <CdtrAcct><Id><IBAN>GB82WEST12345698765432</IBAN></Id></CdtrAcct>
+        <CdtrAgt><FinInstnId><BIC>WESTGB22</BIC></FinInstnId></CdtrAgt>
+        <RmtInf><Ustrd>INV-2026-0001</Ustrd></RmtInf>
+      </CdtTrfTxInf>
+      <CdtTrfTxInf>
+        <PmtId>
+          <EndToEndId>E2E-0002</EndToEndId>
+        </PmtId>
+        <Amt><InstdAmt Ccy="EUR">3400.50</InstdAmt></Amt>
+        <Cdtr><Nm>Beispiel GmbH</Nm></Cdtr>
+        <CdtrAcct><Id><IBAN>DE89370400440532013000</IBAN></Id></CdtrAcct>
+        <CdtrAgt><FinInstnId><BIC>DEUTDEFF</BIC></FinInstnId></CdtrAgt>
+        <RmtInf><Ustrd>INV-2026-0002</Ustrd></RmtInf>
+      </CdtTrfTxInf>
+      <CdtTrfTxInf>
+        <PmtId>
+          <EndToEndId>E2E-0003</EndToEndId>
+        </PmtId>
+        <Amt><InstdAmt Ccy="EUR">875.25</InstdAmt></Amt>
+        <Cdtr><Nm>Handel &amp; Zonen BV</Nm></Cdtr>
+        <CdtrAcct><Id><IBAN>NL91ABNA0417164301</IBAN></Id></CdtrAcct>
+        <CdtrAgt><FinInstnId><BIC>ABNANL2A</BIC></FinInstnId></CdtrAgt>
+        <RmtInf><Ustrd>INV-2026-0003</Ustrd></RmtInf>
+      </CdtTrfTxInf>
+    </PmtInf>
+  </CstmrCdtTrfInitn>
+</Document>

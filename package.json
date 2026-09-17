@@ -1,0 +1,51 @@
+{
+  "name": "paypreflight",
+  "version": "0.1.0",
+  "description": "Offline pre-flight checks for EU payment runs and VAT data: audit a CSV, JSON or pain.001 batch before you send it. CLI + MCP server + browser tool, zero dependencies.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "bin": {
+    "paypreflight": "./bin/paypreflight.mjs",
+    "paypreflight-mcp": "./bin/mcp.mjs"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./sepa": "./lib/sepa.js",
+    "./pain001": "./lib/pain001.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "data",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "port": "node tools/port-validators.mjs",
+    "test": "node --test test/*.test.mjs",
+    "lint:fixtures": "node tools/check-fixtures.mjs",
+    "mcp": "node bin/mcp.mjs",
+    "site": "node tools/build-site.mjs"
+  },
+  "keywords": [
+    "iban",
+    "sepa",
+    "pain.001",
+    "vat",
+    "vies",
+    "payments",
+    "validation",
+    "mcp",
+    "iso20022",
+    "compliance"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agentroomv01-boop/paypreflight.git"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
