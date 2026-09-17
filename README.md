@@ -46,6 +46,8 @@ paypreflight fix run.csv --out run-fixed.csv            # free: full diff, exit 
 paypreflight fix run.csv --out run-fixed.csv --licence PPF1.xxx.yyy
 ```
 
+**Get a Pro licence (€49/year):** [buy on Stripe](https://buy.stripe.com/dRm8wR3Kg0wy71R9c5eQM00) — the offline key is emailed to you within 24 hours.
+
 ## Licensing (offline)
 
 A licence is verified offline with an HMAC over its payload: the key carries
