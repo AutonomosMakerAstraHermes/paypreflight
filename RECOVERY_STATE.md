@@ -43,13 +43,13 @@ Complete and verified (86/86 tests pass). Finished by this recovery session:
 
 ## Remaining work (distribution/monetisation, next loop iteration)
 
-- Init a proper git repo for `revenue-ops` (it currently falls under the
-  accidental home-directory repo) and push `03-paypreflight`.
-- README with install/usage/licensing, npm publish, landing page, MCP listing
-  (official registry / MCPize), launch channels.
+- ~~Git repo~~ done: `03-paypreflight` is its own repo, initial commit
+  `631eb5b` (38 files). Push to GitHub is a human gate.
+- ~~README, LICENSE, browser tool (`tools/build-site.mjs` → `site/`),
+  licence issuer (`tools/mint-licence.mjs`), CLI + licence test suites~~ done.
+- Human gates in `HUMAN_ACTION.md`: GitHub repo/push, `npm publish`, licence
+  secret, payment link. Everything preparable without credentials is done.
 - Continue the Revenue Operator loop: measure, next opportunity research.
-- Human gates (npm publish, GitHub repo creation, licence secret management)
-  belong in HUMAN_ACTION.md when attempted.
 
 ## Blockers
 
