@@ -12,7 +12,7 @@ list; being able to check it without sending a copy to a third party is the
 point.
 
 ```bash
-npm i -g paypreflight        # once published; until then: git clone + npm link
+npm i -g paypreflight        # once published; until then: git clone https://github.com/AutonomosMakerAstraHermes/paypreflight
 paypreflight check suppliers.csv
 paypreflight fix suppliers.csv --out suppliers-fixed.csv --licence PPF1.…
 paypreflight iban GB82WEST12345698765433
