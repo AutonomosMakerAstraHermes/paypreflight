@@ -3,3 +3,4 @@ site/
 out-fixed.csv
 *.log
 .env
+.npmrc
